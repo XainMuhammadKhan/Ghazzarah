@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "Ghazzarah",
+    "slug": "Ghazzarah",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/splash/applogo.png",
+    "scheme": "ghazzarah",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "icon": "./assets/splash/applogo.png"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#F5F5F4",
+        "foregroundImage": "./assets/splash/applogo.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.xain.k19.Ghazzarah"
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#F5F5F4",
+          "image": "./assets/splash/transparent.png",
+          "dark": {
+            "backgroundColor": "#F5F5F4"
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
