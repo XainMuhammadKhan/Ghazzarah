@@ -11,15 +11,20 @@ import {
 import { useEffect, useRef } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
+  interpolateColor,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+// ---- Layout constants ----------------------------------------------------
 const CELL_WIDTH = 80;
 const CELL_HEIGHT = 66;
 const COLLAPSED_SIZE = 66;
+
+const ACTIVE_COLOR = 'rgba(220, 30, 61, 1)';
+const INACTIVE_COLOR = 'rgba(220, 30, 61, 0)';
 
 // Tuned for a soft, creamy settle rather than a bouncy overshoot.
 // Lower damping / higher stiffness = snappier; this is closer to "buttery".
@@ -57,22 +62,27 @@ function CustomTab({
 
   useEffect(() => {
     progress.value = withSpring(selected ? 1 : 0, SPRING_CONFIG);
-  }, [selected]);
+  }, [selected, progress]);
 
   const cellStyle = useAnimatedStyle(() => ({
     width: COLLAPSED_SIZE + (CELL_WIDTH - COLLAPSED_SIZE) * progress.value,
     height: COLLAPSED_SIZE + (CELL_HEIGHT - COLLAPSED_SIZE) * progress.value,
     borderRadius:
       (COLLAPSED_SIZE + (CELL_HEIGHT - COLLAPSED_SIZE) * progress.value) / 2,
-    backgroundColor: `rgba(220, 30, 61, ${progress.value})`,
+    // interpolateColor avoids manually building an rgba() string, which
+    // breaks when progress.value is a near-zero number in exponential
+    // notation (e.g. "5.4e-7") — Reanimated's color parser can't handle that.
+    backgroundColor: interpolateColor(
+      progress.value,
+      [0, 1],
+      [INACTIVE_COLOR, ACTIVE_COLOR]
+    ),
   }));
 
   const labelStyle = useAnimatedStyle(() => ({
     // Fades and drifts up slightly as the pill expands, instead of popping in
     opacity: progress.value,
-    transform: [
-      { translateY: (1 - progress.value) * 6 - progress.value * 6 },
-    ],
+    transform: [{ translateY: (1 - progress.value) * 6 - progress.value * 6 }],
   }));
 
   const iconWrapStyle = useAnimatedStyle(() => ({
@@ -113,6 +123,22 @@ function CustomTab({
   );
 }
 
+type TabConfig = {
+  name: string;
+  href: string;
+  label: string;
+  icon: IconName;
+  selectedIcon: IconName;
+};
+
+const TAB_CONFIG: TabConfig[] = [
+  { name: 'home', href: './', label: 'Home', icon: 'home-variant-outline', selectedIcon: 'home-variant' },
+  { name: 'transactions', href: './transactions', label: 'Transactions', icon: 'swap-horizontal', selectedIcon: 'swap-horizontal' },
+  { name: 'add-transaction', href: './add-transaction', label: 'Add', icon: 'plus', selectedIcon: 'plus' },
+  { name: 'assistant', href: './assistant', label: 'Assistant', icon: 'creation-outline', selectedIcon: 'creation' },
+  { name: 'profile', href: './profile', label: 'Profile', icon: 'account-outline', selectedIcon: 'account' },
+];
+
 type FloatingTabBarProps = {
   blurTarget: React.RefObject<View | null>;
 };
@@ -132,12 +158,7 @@ function FloatingTabBar({ blurTarget }: FloatingTabBarProps) {
   return (
     <View
       pointerEvents="box-none"
-      style={[
-        styles.positioner,
-        {
-          bottom: Math.max(insets.bottom, 10) + 10,
-        },
-      ]}
+      style={[styles.positioner, { bottom: Math.max(insets.bottom, 10) + 10 }]}
     >
       <View style={styles.shadowWrapper}>
         <View style={styles.glassSurface}>
@@ -158,41 +179,11 @@ function FloatingTabBar({ blurTarget }: FloatingTabBarProps) {
           />
 
           <View style={styles.tabRow}>
-            <TabTrigger name="home" asChild>
-              <CustomTab
-                label="Home"
-                icon="home-variant-outline"
-                selectedIcon="home-variant"
-              />
-            </TabTrigger>
-
-            <TabTrigger name="transactions" asChild>
-              <CustomTab
-                label="Transactions"
-                icon="swap-horizontal"
-                selectedIcon="swap-horizontal"
-              />
-            </TabTrigger>
-
-            <TabTrigger name="add-transaction" asChild>
-              <CustomTab label="Add" icon="plus" selectedIcon="plus" />
-            </TabTrigger>
-
-            <TabTrigger name="assistant" asChild>
-              <CustomTab
-                label="Assistant"
-                icon="creation-outline"
-                selectedIcon="creation"
-              />
-            </TabTrigger>
-
-            <TabTrigger name="profile" asChild>
-              <CustomTab
-                label="Profile"
-                icon="account-outline"
-                selectedIcon="account"
-              />
-            </TabTrigger>
+            {TAB_CONFIG.map(({ name, label, icon, selectedIcon }) => (
+              <TabTrigger key={name} name={name} asChild>
+                <CustomTab label={label} icon={icon} selectedIcon={selectedIcon} />
+              </TabTrigger>
+            ))}
           </View>
         </View>
       </View>
@@ -268,17 +259,12 @@ const styles = StyleSheet.create({
     borderRadius: 39,
 
     shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 12,
-    },
+    shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.4,
     shadowRadius: 22,
 
     ...Platform.select({
-      android: {
-        elevation: 22,
-      },
+      android: { elevation: 22 },
     }),
   },
 
