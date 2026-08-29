@@ -13,7 +13,7 @@ import {
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import Logo from "../../../assets/splash/logo.svg";
 import { codeSchema, SignInFormValues, signInSchema } from "../../../lib/schemas/auth";
-import useSocialAuth from "../hooks/useSocialAuth";
+import useSocialAuth from "../../../hooks/useSocialAuth";
 
 export default function SignIn() {
   const { signIn, errors, fetchStatus } = useSignIn();
