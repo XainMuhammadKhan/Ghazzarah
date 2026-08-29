@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { View } from 'react-native';
 import { ClerkProvider } from '@clerk/expo'
 import { tokenCache } from '@clerk/expo/token-cache'
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import "../../global.css";
 import AnimatedSplash from '../app/components/AnimatedSplash';
 
@@ -28,7 +29,8 @@ export default function RootLayout() {
 
   return (
      <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-    <View className="flex-1 bg-brand-body">
+      <KeyboardProvider>
+        <View className="flex-1 bg-brand-body">
       <Stack
         screenOptions={{
           headerShown: false,
@@ -44,7 +46,8 @@ export default function RootLayout() {
           />
         </View>
       )}
-    </View>
+        </View>
+      </KeyboardProvider>
     </ClerkProvider>
   );
 }

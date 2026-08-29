@@ -1,22 +1,24 @@
 import { useSignIn } from "@clerk/expo";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import Logo from "../../../assets/splash/logo.svg";
 import { codeSchema, SignInFormValues, signInSchema } from "../../../lib/schemas/auth";
+import useSocialAuth from "../hooks/useSocialAuth";
 
 export default function SignIn() {
   const { signIn, errors, fetchStatus } = useSignIn();
   const router = useRouter();
+  const { handleSocialAuth, loadingStrategy } = useSocialAuth();
 
   const {
     control,
@@ -83,16 +85,22 @@ export default function SignIn() {
     }
   };
 
-  const isLoading = fetchStatus === "fetching";
+  const isPasswordLoading = fetchStatus === "fetching";
+  const isGoogleLoading = loadingStrategy === "oauth_google";
+  const isLoading = isPasswordLoading || isGoogleLoading;
 
   if (signIn.status === "needs_client_trust") {
     return (
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1 bg-brand-body"
-      >
-        <View className="flex-1 justify-center px-6 -mt-16">
-          <View className="mb-8 h-48 w-48 self-start items-start -ml-8">
+      <View className="flex-1 bg-brand-body">
+        <KeyboardAwareScrollView
+          bottomOffset={24}
+          contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          nestedScrollEnabled
+          className="px-6 -mt-16"
+        >
+          <View className="-mb-8 h-48 w-48 self-start items-start -ml-8">
             <Logo width="100%" height="100%" />
           </View>
           <Text className="text-3xl font-bold text-[#1A1D26] mb-2 leading-tight">
@@ -147,18 +155,22 @@ export default function SignIn() {
           <TouchableOpacity onPress={() => signIn.reset()} className="py-2">
             <Text className="text-brand-red text-sm">Start over</Text>
           </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
+        </KeyboardAwareScrollView>
+      </View>
     );
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-brand-body"
-    >
-      <View className="flex-1 justify-center px-6 -mt-16">
-        <View className="mb-8 h-48 w-48 self-start items-start -ml-8">
+    <View className="flex-1 bg-brand-body">
+      <KeyboardAwareScrollView
+        bottomOffset={24}
+        contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        nestedScrollEnabled
+        className="px-6 -mt-16"
+      >
+        <View className="-mb-8 h-48 w-48 self-start items-start -ml-8">
           <Logo width="100%" height="100%" />
         </View>
         <Text className="text-3xl font-bold text-[#1A1D26] mb-2 leading-tight">
@@ -227,11 +239,24 @@ export default function SignIn() {
           disabled={isLoading}
           className="w-full bg-brand-red py-4 rounded-xl items-center mb-4"
         >
-          {isLoading ? (
+          {isPasswordLoading ? (
             <ActivityIndicator color="white" />
           ) : (
             <Text className="text-white font-semibold text-base">Sign In</Text>
           )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => handleSocialAuth("oauth_google")}
+          disabled={isLoading}
+          className="mb-6 w-full flex-row items-center justify-center gap-3 rounded-xl border border-brand-surface-border bg-white py-4"
+          accessibilityRole="button"
+          accessibilityLabel="Continue with Google"
+        >
+          <MaterialCommunityIcons name="google" size={21} color="#DC1E3D" />
+          <Text className="text-base font-semibold text-surface">
+            {isGoogleLoading ? "Connecting Google..." : "Continue with Google"}
+          </Text>
         </TouchableOpacity>
 
         <View className="flex-row justify-center">
@@ -242,7 +267,14 @@ export default function SignIn() {
             <Text className="text-brand-red font-semibold">Sign Up</Text>
           </Link>
         </View>
-      </View>
-    </KeyboardAvoidingView>
+
+        <Text className="mt-4 text-center text-xs leading-5 text-brand-text-muted">
+          By continuing, you agree to our{" "}
+          <Text className="font-semibold text-brand-red">Terms of Service</Text>
+          {" and "}
+          <Text className="font-semibold text-brand-red">Privacy Policy</Text>.
+        </Text>
+      </KeyboardAwareScrollView>
+    </View>
   );
 }

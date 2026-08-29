@@ -11,6 +11,7 @@
       "icon": "./assets/splash/applogo.png"
     },
     "android": {
+      "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#F5F5F4",
         "foregroundImage": "./assets/splash/applogo.png"

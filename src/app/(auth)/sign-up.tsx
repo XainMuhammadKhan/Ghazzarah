@@ -1,18 +1,17 @@
 import { useAuth, useSignUp } from "@clerk/expo";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useRouter } from "expo-router";
+import { Link, Redirect, useRouter } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
     ActivityIndicator,
-    KeyboardAvoidingView,
-    Platform,
     Text,
     TextInput,
     TouchableOpacity,
     View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import Logo from "../../../assets/splash/logo.svg";
 import { codeSchema, SignUpFormValues, signUpSchema } from "../../../lib/schemas/auth";
 
@@ -79,8 +78,8 @@ export default function SignUpScreen() {
     }
   };
 
-  if (signUp.status === "complete" || isSignedIn) {
-    return null;
+  if (isSignedIn) {
+    return <Redirect href="/" />;
   }
 
   if (
@@ -89,12 +88,16 @@ export default function SignUpScreen() {
     signUp.missingFields.length === 0
   ) {
     return (
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1 bg-brand-body"
-      >
-        <View className="flex-1 justify-center px-6 -mt-16">
-          <View className="mb-8 h-48 w-48 self-start items-start -ml-8">
+      <View className="flex-1 bg-brand-body">
+        <KeyboardAwareScrollView
+          bottomOffset={24}
+          contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          nestedScrollEnabled
+          className="px-6 -mt-16"
+        >
+          <View className="-mb-8 h-48 w-48 self-start items-start -ml-8">
             <Logo width="100%" height="100%" />
           </View>
           <Text className="text-3xl font-bold text-[#1A1D26] mb-2 leading-tight">
@@ -152,18 +155,22 @@ export default function SignUpScreen() {
           <TouchableOpacity onPress={() => signUp.reset()} className="py-2">
             <Text className="text-brand-red text-sm">Start over</Text>
           </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
+        </KeyboardAwareScrollView>
+      </View>
     );
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-brand-body"
-    >
-      <View className="flex-1 justify-center px-6 -mt-16">
-        <View className="mb-8 h-48 w-48 self-start items-start -ml-8">
+    <View className="flex-1 bg-brand-body">
+      <KeyboardAwareScrollView
+        bottomOffset={24}
+        contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        nestedScrollEnabled
+        className="px-6 -mt-16"
+      >
+        <View className="-mb-8 h-48 w-48 self-start items-start -ml-8">
           <Logo width="100%" height="100%" />
         </View>
         <Text className="text-3xl font-bold text-[#1A1D26] mb-2 leading-tight">
@@ -302,7 +309,7 @@ export default function SignUpScreen() {
 
         {/* Required by Clerk for bot protection */}
         <View nativeID="clerk-captcha" />
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
+    </View>
   );
 }
