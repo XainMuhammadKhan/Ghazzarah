@@ -8,6 +8,8 @@
     "@expo/vector-icons": "^15.0.2",
     "@hookform/resolvers": "^5.9.1",
     "@supabase/supabase-js": "^2.112.4",
+    "currency-codes": "^2.2.0",
+    "currency-symbol-map": "^5.1.0",
     "expo": "~57.0.16",
     "expo-auth-session": "~57.0.10",
     "expo-blur": "~57.0.2",

@@ -1,23 +1,23 @@
-import { ALL_CURRENCIES, CurrencyPicker } from "@/components/CurrencyPicker";
-import { useSupabase } from "../../../hooks/useSupabase";
-import { onboardingSchema, OnboardingFormValues } from "@/lib/schemas/onboarding";
-import { useUserStore } from "../../../store/userStore";
 import { useUser } from "@clerk/expo";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Feather } from "@expo/vector-icons";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    KeyboardAvoidingView,
+    Platform,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Logo from "../../../assets/splash/logo.svg";
+import { ALL_CURRENCIES, CurrencyPicker } from "../../../components/CurrencyPicker";
+import { useSupabase } from "../../../hooks/useSupabase";
+import { OnboardingFormValues, onboardingSchema } from "../../../lib/schemas/onboarding";
+import { useUserStore } from "../../../store/userStore";
 
 export default function OnboardingScreen() {
   const { user } = useUser();
@@ -36,7 +36,7 @@ export default function OnboardingScreen() {
   });
 
   const [selectedCurrency, setSelectedCurrency] = useState(
-    ALL_CURRENCIES.find((c) => c.code === "INR") ?? ALL_CURRENCIES[0]
+    ALL_CURRENCIES.find((c) => c.code === "PKR") ?? ALL_CURRENCIES[0]
   );
   const [pickerOpen, setPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -114,11 +114,9 @@ export default function OnboardingScreen() {
         className="flex-1"
       >
         <View className="flex-1 px-6 justify-center -mt-16">
-          <Image
-            source={require("../../assets/images/welth.png")}
-            className="w-32 h-14 mb-10"
-            resizeMode="contain"
-          />
+          <View className="-mb-8 h-48 w-48 self-start items-start -ml-8">
+            <Logo width="100%" height="100%" />
+          </View>
           <Text className="text-[#1A1D26] text-3xl font-bold mb-2">
             Let&apos;s get you set up
           </Text>
@@ -182,7 +180,7 @@ export default function OnboardingScreen() {
           <TouchableOpacity
             onPress={handleSubmit(handleSave)}
             disabled={saving}
-            className="bg-brand-bg rounded-xl py-4 items-center"
+            className="bg-brand-red rounded-xl py-4 items-center"
             activeOpacity={0.85}
           >
             <Text className="text-white text-sm font-semibold">
