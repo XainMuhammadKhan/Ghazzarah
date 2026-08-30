@@ -7,6 +7,9 @@ on:
       - master
       - develop
 
+permissions:
+  contents: write  # needed so the release step can create a GitHub Release
+
 jobs:
   build:
     name: EAS Build
@@ -29,10 +32,36 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
+      # CHANGED: removed --no-wait so this step blocks until EAS finishes
+      # the cloud build. Added --json so we get structured output with the
+      # finished build's artifact download URL, instead of just log text.
       - name: Build preview (Android)
         if: github.ref == 'refs/heads/develop'
-        run: eas build --platform android --profile preview --non-interactive --no-wait
+        run: eas build --platform android --profile preview --non-interactive --json > build-output.json
 
       - name: Build production APK (Android)
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: eas build --platform android --profile production-apk --non-interactive --no-wait
+        run: eas build --platform android --profile production-apk --non-interactive --json > build-output.json
+
+      # CHANGED: new step — pulls the artifact download URL out of EAS's
+      # JSON response. jq is preinstalled on GitHub's ubuntu runners.
+      - name: Extract build artifact URL
+        id: artifact
+        run: |
+          URL=$(jq -r '.[0].artifacts.buildUrl' build-output.json)
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+      # CHANGED: new step — downloads the finished .apk from EAS onto the
+      # runner so it can be attached to a GitHub Release below.
+      - name: Download APK
+        run: curl -L "${{ steps.artifact.outputs.url }}" -o app.apk
+
+      # CHANGED: new step — same release-action your original Flutter
+      # workflow used, now attaching the EAS-built APK instead of a
+      # locally-built one.
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "app.apk"
+          tag: v1.0.${{ github.run_number }}
+          token: ${{ secrets.GITHUB_TOKEN }}
