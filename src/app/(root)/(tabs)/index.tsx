@@ -1,6 +1,12 @@
 import { BudgetModal } from "../../../../components/BudegetModal";
 import { TransactionRow } from "../../../../components/TransactionRow";
 import { getCategoryConfig } from "../../../../constants/categories";
+import {
+  HERO_GRADIENT_COLORS,
+  HERO_GRADIENT_END,
+  HERO_GRADIENT_LOCATIONS,
+  HERO_GRADIENT_START,
+} from "../../../../constants/theme";
 import { useAccountsQuery } from "../../../../hooks/queries/useAccountsQuery";
 import { useBudgetQuery } from "../../../../hooks/queries/useBudgetQuery";
 import { useDeleteTransaction } from "../../../../hooks/mutations/useTransactionMutations";
@@ -178,10 +184,10 @@ export default function HomeScreen() {
         {/* Dark hero header */}
         <View className="overflow-hidden rounded-b-[28px]">
           <LinearGradient
-            colors={["#000000", "#DC1E3D", "#000000"]}
-            locations={[0, 0.72, 1]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
+            colors={HERO_GRADIENT_COLORS}
+            locations={HERO_GRADIENT_LOCATIONS}
+            start={HERO_GRADIENT_START}
+            end={HERO_GRADIENT_END}
           >
             <View className="px-5 pt-5 pb-[22px]">
           <View className="mb-[22px] w-full flex-row items-center justify-between">
