@@ -1,12 +1,17 @@
-import { createClerkSupabaseClient } from "../lib/supabase";
 import { useAuth } from "@clerk/expo";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { createClerkSupabaseClient } from "../lib/supabase";
 
 export function useSupabase() {
   const { getToken } = useAuth();
 
+  const getTokenRef = useRef(getToken);
+  useEffect(() => {
+    getTokenRef.current = getToken;
+  }, [getToken]);
+
   const client = useMemo(
-    () => createClerkSupabaseClient(() => getToken()),
+    () => createClerkSupabaseClient(() => getTokenRef.current?.()),
     [] // empty deps — create the client once, getToken is captured in the closure
   );
 

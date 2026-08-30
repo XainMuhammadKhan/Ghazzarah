@@ -7,7 +7,9 @@ import { tokenCache } from '@clerk/expo/token-cache'
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import "../../global.css";
 import AnimatedSplash from '../app/components/AnimatedSplash';
-
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '../../lib/query/client';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!
 
 if (!publishableKey) {
@@ -28,6 +30,8 @@ export default function RootLayout() {
   const handleFinish = useCallback(() => setShowAnimatedSplash(false), []);
 
   return (
+    <GestureHandlerRootView>
+    <QueryClientProvider client={queryClient}>
      <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
       <KeyboardProvider>
         <View className="flex-1 bg-brand-body">
@@ -49,5 +53,7 @@ export default function RootLayout() {
         </View>
       </KeyboardProvider>
     </ClerkProvider>
+    </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
