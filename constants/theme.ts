@@ -37,3 +37,13 @@ export const RECORDING_GRADIENT: [string, string] = [
   COLORS.brand.red,
   COLORS.brand.redGlow,
 ];
+
+export const HERO_GRADIENT_COLORS = [
+  COLORS.brand.bg,
+  COLORS.brand.red,
+  COLORS.brand.bg,
+] as const;
+
+export const HERO_GRADIENT_LOCATIONS = [0, 0.72, 1] as const;
+export const HERO_GRADIENT_START = { x: 0, y: 0 } as const;
+export const HERO_GRADIENT_END = { x: 1, y: 1 } as const;
