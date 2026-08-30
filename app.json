@@ -17,7 +17,13 @@
         "foregroundImage": "./assets/splash/applogo.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.xain.k19.Ghazzarah"
+      "package": "com.xain.k19.Ghazzarah",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ]
     },
     "web": {
       "output": "static",
@@ -51,6 +57,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "aa9670b8-174d-4ad6-bd22-69215799a7a2"
+      }
     }
   }
 }
