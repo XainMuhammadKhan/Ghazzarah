@@ -66,7 +66,7 @@ export async function updateAccount(
     .single();
 
   if (error) throw error;
-  return data as Account;
+//   return data as Account;
 }
 
 // First call (default / force: false) only reports how many transactions would
