@@ -11,6 +11,8 @@ jobs:
   build:
     name: EAS Build
     runs-on: ubuntu-latest
+    env:
+      EXPO_TOKEN: ${{ secrets.CICD_TOKEN }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -18,31 +20,19 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Setup EAS
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
 
-      # develop -> preview build (installable APK, real device testable)
       - name: Build preview (Android)
         if: github.ref == 'refs/heads/develop'
         run: eas build --platform android --profile preview --non-interactive --no-wait
 
-      # main/master -> production-apk (same JS/env as real production,
-      # but packaged as an installable .apk instead of a store-only .aab)
-      #
-      # NOTE: Android only for now. iOS builds require a paid Apple
-      # Developer Program membership to sign anything at all — once
-      # you've enrolled and run `eas credentials` once to let EAS manage
-      # your certs, add a second step here for
-      # `eas build --platform ios --profile production --non-interactive --no-wait`
       - name: Build production APK (Android)
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         run: eas build --platform android --profile production-apk --non-interactive --no-wait
