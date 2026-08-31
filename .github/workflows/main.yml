@@ -6,6 +6,12 @@ on:
       - main
       - master
       - develop
+  workflow_dispatch:  # CHANGED: added so you can manually re-trigger a
+                       # fresh run from the Actions tab (Run workflow
+                       # button) without needing an empty commit — and,
+                       # since it's a new run, github.run_number increments
+                       # normally, avoiding the duplicate-tag problem that
+                       # "Re-run all jobs" caused.
 
 permissions:
   contents: write  # needed so the release step can create a GitHub Release
@@ -32,9 +38,6 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
-      # CHANGED: removed --no-wait so this step blocks until EAS finishes
-      # the cloud build. Added --json so we get structured output with the
-      # finished build's artifact download URL, instead of just log text.
       - name: Build preview (Android)
         if: github.ref == 'refs/heads/develop'
         run: eas build --platform android --profile preview --non-interactive --json > build-output.json
@@ -43,25 +46,25 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         run: eas build --platform android --profile production-apk --non-interactive --json > build-output.json
 
-      # CHANGED: new step — pulls the artifact download URL out of EAS's
-      # JSON response. jq is preinstalled on GitHub's ubuntu runners.
       - name: Extract build artifact URL
         id: artifact
         run: |
           URL=$(jq -r '.[0].artifacts.buildUrl' build-output.json)
           echo "url=$URL" >> "$GITHUB_OUTPUT"
 
-      # CHANGED: new step — downloads the finished .apk from EAS onto the
-      # runner so it can be attached to a GitHub Release below.
       - name: Download APK
         run: curl -L "${{ steps.artifact.outputs.url }}" -o app.apk
 
-      # CHANGED: new step — same release-action your original Flutter
-      # workflow used, now attaching the EAS-built APK instead of a
-      # locally-built one.
+      # CHANGED: added allowUpdates: true. Previously, re-running a job
+      # (same github.run_number, same tag) or any other case producing a
+      # duplicate tag would fail with "422: tag_name already_exists".
+      # allowUpdates makes the action update the existing release (and
+      # replace its attached APK) instead of erroring when the tag is
+      # already taken.
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
           artifacts: "app.apk"
           tag: v1.0.${{ github.run_number }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          allowUpdates: true
